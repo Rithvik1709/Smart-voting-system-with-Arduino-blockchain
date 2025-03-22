@@ -1,0 +1,123 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+// Initialize the LCD with the I2C address (replace 0x27 if needed)
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+// Pin Definitions for Buttons
+const int bjpButton = 2;    // Button for BJP (Button 1)
+const int aapButton = 3;    // Button for AAP (Button 2)
+const int jduButton = 4;    // Button for JDU (Button 3)
+const int othersButton = 5; // Button for Others (Button 4)
+const int resetButton = 6;  // Button for Resetting the counts
+
+// Variables to store the count of votes for each option
+int BJP = 0;
+int AAP = 0;
+int JDU = 0;
+int OTHERS = 0;
+
+void setup() {
+  // Initialize the LCD
+  lcd.init();
+  lcd.backlight();
+  lcd.clear();
+
+  // Start serial communication at 9600 baud rate
+  Serial.begin(9600);  // This is required for serial communication
+
+  // Display "Voting System" on the LCD at the beginning
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Voting System");
+  delay(2000);  // Show "Voting System" message for 2 seconds
+
+  // Show and scroll the options on the LCD
+  displayScrollingText();
+  
+  // Configure Button Pins as Input with Pull-Up Resistors
+  pinMode(bjpButton, INPUT_PULLUP);
+  pinMode(aapButton, INPUT_PULLUP);
+  pinMode(jduButton, INPUT_PULLUP);
+  pinMode(othersButton, INPUT_PULLUP);
+  pinMode(resetButton, INPUT_PULLUP);
+}
+
+void loop() {
+  // Check if BJP Button (Button 1) is Pressed
+  if (digitalRead(bjpButton) == LOW) {
+    BJP++;  // Increment BJP votes
+    displayMessage("BJP Selected");
+    delay(1000); // Show the message for 1 second
+    displayScrollingText(); // Show the options again after 1 second
+    sendVoteCounts();  // Send current vote counts to serial
+  }
+
+  // Check if AAP Button (Button 2) is Pressed
+  if (digitalRead(aapButton) == LOW) {
+    AAP++;  // Increment AAP votes
+    displayMessage("AAP Selected");
+    delay(1000); // Show the message for 1 second
+    displayScrollingText(); // Show the options again after 1 second
+    sendVoteCounts();  // Send current vote counts to serial
+  }
+
+  // Check if JDU Button (Button 3) is Pressed
+  if (digitalRead(jduButton) == LOW) {
+    JDU++;  // Increment JDU votes
+    displayMessage("JDU Selected");
+    delay(1000); // Show the message for 1 second
+    displayScrollingText(); // Show the options again after 1 second
+    sendVoteCounts();  // Send current vote counts to serial
+  }
+
+  // Check if Others Button (Button 4) is Pressed
+  if (digitalRead(othersButton) == LOW) {
+    OTHERS++;  // Increment Others votes
+    displayMessage("Others Selected");
+    delay(1000); // Show the message for 1 second
+    displayScrollingText(); // Show the options again after 1 second
+    sendVoteCounts();  // Send current vote counts to serial
+  }
+
+  // Check if Reset Button is Pressed
+  if (digitalRead(resetButton) == LOW) {
+    displayMessage("Resetting...");
+    delay(1000); // Show the reset message for 1 second
+    lcd.clear(); // Clear the screen after reset message
+    BJP = 0;   // Reset all counts
+    AAP = 0;
+    JDU = 0;
+    OTHERS = 0;
+    sendVoteCounts();  // Send reset event to serial
+    displayScrollingText(); // Show the options again after reset
+  }
+}
+
+// Function to Display Vote Party Message on the LCD
+void displayMessage(String message) {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print(message);
+}
+
+// Function to Scroll Options from Right to Left
+void displayScrollingText() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("1 = BJP   2 = AAP   3 = JDU   4 = Others");
+
+  // Scroll the text from right to left
+  for (int i = 0; i < 24; i++) { // Adjust the number for the scroll length
+    lcd.scrollDisplayLeft();
+    delay(200); // Adjust the speed of the scroll
+  }
+}
+
+// Function to Send Vote Counts to Serial Port
+void sendVoteCounts() {
+  Serial.print("BJP: "); Serial.print(BJP); 
+  Serial.print(", AAP: "); Serial.print(AAP); 
+  Serial.print(", JDU: "); Serial.print(JDU); 
+  Serial.print(", Others: "); Serial.println(OTHERS);
+}
