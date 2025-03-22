@@ -48,7 +48,7 @@ contract_address = "0xd9145CCE52D386f254917e481eB44e9943F39138"  # Replace with 
 contract = web3.eth.contract(address=contract_address, abi=abi)
 
 # Initialize variables
-counts = {"panchu": 0, "kavitha": 0, "chips": 0, "shakima": 0, "nota": 0}
+counts = {"BJP": 0, "AAP": 0, "JDU": 0, "OTHERS": 0, "nota": 0}
 voting_active = True
 
 # Function to process serial data from Arduino
@@ -59,7 +59,7 @@ def process_serial_data():
                 data = ser.readline().decode().strip()  # Read data from serial port
                 print(f"Received data: {data}")  # For debugging, print the incoming data
 
-                if len(data) == 5:  # We expect 5 characters, one for each vote (panchu, kavitha, chips, shakima, nota)
+                if len(data) == 5:  # We expect 5 characters, one for each vote (BJP, AAP, JDU, OTHERS, nota)
                     for i, key in enumerate(counts.keys()):
                         if data[i] == '1':  # If Arduino sends '1', increment that candidate's count
                             counts[key] += 1
@@ -71,11 +71,11 @@ def process_serial_data():
 def process_local_votes():
     global voting_active
     while voting_active:
-        user_input = input("Enter vote (panchu/kavitha/chips/shakima/nota) or 'stop voting': ").strip().lower()
+        user_input = input("Enter vote (BJP/AAP/JDU/OTHERS/nota) or 'stop voting': ").strip().upper()
         if user_input in counts:
             counts[user_input] += 1
             print(f"Vote added for {user_input}. Current counts: {counts}")
-        elif user_input == "stop voting":
+        elif user_input == "STOP VOTING":
             voting_active = False
             print("Voting stopped.")
         else:
